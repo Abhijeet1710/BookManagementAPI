@@ -1,6 +1,7 @@
 // Environment Variables
 // Injected into the code at run time to acheive security.
 //Don't upload .env file on github or any online platform so add .env into .gitignore
+// New Comment
 require("dotenv").config();
 
 //Mongoose Database
