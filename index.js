@@ -424,4 +424,25 @@ shapeAI.get("/publication/:id", async (req, res) => {
   return res.json({ publication: publication });
 });
 
+/*
+Route           /publications
+Description     get list of publications based on a book ISBN
+Access          PUBLIC
+Parameters      ISBN
+Method          GET
+*/
+shapeAI.get("/publicationsBasedOn/:isbn", async (req, res) => {
+  const getPub = await PublicationModel.find({
+    books: req.params.isbn,
+  });
+
+  if (!getPub) {
+    return res.json({
+      error: `No publications found for the isbn of  =>  ${req.params.isbn}`,
+    });
+  }
+
+  return res.json({ books: getPub });
+});
+
 shapeAI.listen(3000, () => console.log("Server running!!😎"));
