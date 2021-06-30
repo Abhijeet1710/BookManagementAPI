@@ -445,4 +445,4 @@ shapeAI.get("/publicationsBasedOn/:isbn", async (req, res) => {
   return res.json({ books: getPub });
 });
 
-shapeAI.listen(3000, () => console.log("Server running!!😎"));
+shapeAI.listen(3000, () => console.log("Server running!!"));
