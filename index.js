@@ -33,7 +33,7 @@ mongoose
     useCreateIndex: true,
   })
   .then(() => console.log("Connection established"));
-
+// _____________________BOOKS____________________________________
 /*
 Route           /
 Description     get all books
@@ -88,39 +88,6 @@ shapeAI.get("/c/:category", async (req, res) => {
 });
 
 /*
-Route           /publications
-Description     to get publications based on books
-Access          PUBLIC
-Parameters      isbn
-Method          GET
-*/
-shapeAI.get("/publications/:isbn", async (req, res) => {
-  const getSpecificPub = await BookModel.findOne({
-    author: req.params.isbn,
-  });
-
-  if (!getSpecificPub) {
-    return res.json({
-      error: `No publications found for the book of id ${req.params.author}`,
-    });
-  }
-
-  return res.json({ books: getSpecificBooks });
-});
-
-/*
-Route           /author
-Description     get all authors
-Access          PUBLIC
-Parameters      NONE
-Method          GET
-*/
-shapeAI.get("/author", async (req, res) => {
-  const getAllAuthors = await AuthorModel.find();
-  return res.json({ authors: getAllAuthors });
-});
-
-/*
 Route           /book/new
 Description     add new books
 Access          PUBLIC
@@ -133,21 +100,6 @@ shapeAI.post("/book/new", async (req, res) => {
   BookModel.create(newBook);
 
   return res.json({ message: "book was added!" });
-});
-
-/*
-Route           /author/new
-Description     add new author
-Access          PUBLIC
-Parameters      NONE
-Method          POST
-*/
-shapeAI.post("/author/new", (req, res) => {
-  const { newAuthor } = req.body;
-
-  AuthorModel.create(newAuthor);
-
-  return res.json({ message: "author was added!" });
 });
 
 /*
@@ -167,62 +119,6 @@ shapeAI.put("/book/update/:isbn", (req, res) => {
 
   return res.json({ books: database.books });
 });
-/*
-Route           /book/author/update
-Description     update/add new author
-Access          PUBLIC
-Parameters      isbn
-Method          PUT
-*/
-shapeAI.put("/book/author/update/:isbn", (req, res) => {
-  // update the book database
-  database.books.forEach((book) => {
-    if (book.ISBN === req.params.isbn)
-      return book.authors.push(req.body.newAuthor);
-  });
-
-  // update the author database
-  database.authors.forEach((author) => {
-    if (author.id === req.body.newAuthor)
-      return author.books.push(req.params.isbn);
-  });
-
-  return res.json({
-    books: database.books,
-    authors: database.authors,
-    message: "New author was added 🚀",
-  });
-});
-
-/*
-Route           /publication/update/book
-Description     update/add new book to a publication
-Access          PUBLIC
-Parameters      isbn
-Method          PUT
-*/
-shapeAI.put("/publication/update/book/:isbn", (req, res) => {
-  // update the publication database
-  database.publications.forEach((publication) => {
-    if (publication.id === req.body.pubId) {
-      return publication.books.push(req.params.isbn);
-    }
-  });
-
-  // update the book database
-  database.books.forEach((book) => {
-    if (book.ISBN === req.params.isbn) {
-      book.publication = req.body.pubId;
-      return;
-    }
-  });
-
-  return res.json({
-    books: database.books,
-    publications: database.publications,
-    message: "Successfully updated publication",
-  });
-});
 
 /*
 Route           /book/delete
@@ -239,6 +135,7 @@ shapeAI.delete("/book/delete/:isbn", (req, res) => {
   database.books = updatedBookDatabase;
   return res.json({ books: database.books });
 });
+
 /*
 Route           /book/delete/author
 Description     delete a author from a book
@@ -276,6 +173,60 @@ shapeAI.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
     author: database.authors,
   });
 });
+
+// _____________________PUBLICATIONS____________________________________
+
+/*
+Route           /publications
+Description     to get publications based on books
+Access          PUBLIC
+Parameters      isbn
+Method          GET
+*/
+shapeAI.get("/publications/:isbn", async (req, res) => {
+  const getSpecificPub = await BookModel.findOne({
+    author: req.params.isbn,
+  });
+
+  if (!getSpecificPub) {
+    return res.json({
+      error: `No publications found for the book of id ${req.params.author}`,
+    });
+  }
+
+  return res.json({ books: getSpecificBooks });
+});
+
+/*
+Route           /publication/update/book
+Description     update/add new book to a publication
+Access          PUBLIC
+Parameters      isbn
+Method          PUT
+*/
+shapeAI.put("/publication/update/book/:isbn", (req, res) => {
+  // update the publication database
+  database.publications.forEach((publication) => {
+    if (publication.id === req.body.pubId) {
+      return publication.books.push(req.params.isbn);
+    }
+  });
+
+  // update the book database
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      book.publication = req.body.pubId;
+      return;
+    }
+  });
+
+  return res.json({
+    books: database.books,
+    publications: database.publications,
+    message: "Successfully updated publication",
+  });
+});
+
 /*
 Route           /publication/delete/book
 Description     delete a book from publication 
@@ -307,6 +258,62 @@ shapeAI.delete("/publication/delete/book/:isbn/:pubId", (req, res) => {
   return res.json({
     books: database.books,
     publications: database.publications,
+  });
+});
+
+// _____________________AUTHORS____________________________________
+
+/*
+Route           /author
+Description     get all authors
+Access          PUBLIC
+Parameters      NONE
+Method          GET
+*/
+shapeAI.get("/author", async (req, res) => {
+  const getAllAuthors = await AuthorModel.find();
+  return res.json({ authors: getAllAuthors });
+});
+
+/*
+Route           /author/new
+Description     add new author
+Access          PUBLIC
+Parameters      NONE
+Method          POST
+*/
+shapeAI.post("/author/new", (req, res) => {
+  const { newAuthor } = req.body;
+
+  AuthorModel.create(newAuthor);
+
+  return res.json({ message: "author was added!" });
+});
+
+/*
+Route           /book/author/update
+Description     update/add new author
+Access          PUBLIC
+Parameters      isbn
+Method          PUT
+*/
+shapeAI.put("/book/author/update/:isbn", (req, res) => {
+  // update the book database
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn)
+      return book.authors.push(req.body.newAuthor);
+  });
+
+  // update the author database
+  database.authors.forEach((author) => {
+    if (author.id === req.body.newAuthor)
+      return author.books.push(req.params.isbn);
+  });
+
+  return res.json({
+    books: database.books,
+    authors: database.authors,
+    message: "New author was added 🚀",
   });
 });
 
