@@ -121,7 +121,45 @@ shapeAI.put("/book/update/:isbn", async (req, res) => {
       new: true,
     }
   );
-  return res.json({ books: updatedBook });
+  return res.json({ book: updatedBook });
+});
+
+/*
+Route           /book/author/update
+Description     add/update books author
+Access          PUBLIC
+Parameters      isbn
+Method          PUT
+*/
+shapeAI.put("/book/author/update/:isbn", async (req, res) => {
+  const updatedBook = await BookModel.findOneAndUpdate(
+    {
+      ISBN: req.params.isbn,
+    },
+    {
+      $addToSet: {
+        authors: req.body.newAuthor.id,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const updatedAuthor = await AuthorModel.findOneAndUpdate(
+    {
+      id: req.body.newAuthor.id,
+    },
+    {
+      $addToSet: {
+        books: req.params.isbn,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+  return res.json({ books: updatedBook, authors: updatedAuthor });
 });
 
 /*
