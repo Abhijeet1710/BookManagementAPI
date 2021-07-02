@@ -184,36 +184,30 @@ Access          PUBLIC
 Parameters      isbn, author id
 Method          DELETE
 */
-shapeAI.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
-  // update the book database
-
-  database.books.forEach((book) => {
-    if (book.ISBN === req.params.isbn) {
-      const newAuthorList = book.authors.filter(
-        (author) => author !== parseInt(req.params.authorId)
-      );
-      book.authors = newAuthorList;
-      return;
+shapeAI.delete("/book/delete/author/:isbn/:authorId", async (req, res) => {
+  const deletedBook = await BookModel.findOneAndUpdate(
+    {
+      ISBN: req.params.isbn,
+    },
+    {
+      $pull: {
+        authors: req.params.authorId,
+      },
     }
-  });
+  );
 
-  // update the author database
-  database.authors.forEach((author) => {
-    if (author.id === parseInt(req.params.authorId)) {
-      const newBooksList = author.books.filter(
-        (book) => book !== req.params.isbn
-      );
-
-      author.books = newBooksList;
-      return;
+  const deletedAuthor = await AuthorModel.findOneAndUpdate(
+    {
+      id: req.params.authorId,
+    },
+    {
+      $pull: {
+        books: req.params.isbn,
+      },
     }
-  });
+  );
 
-  return res.json({
-    message: "author was deleted!!!!!!😪",
-    book: database.books,
-    author: database.authors,
-  });
+  return res.json({ dBook: deletedBook, dAuthor: deletedAuthor });
 });
 
 // _____________________PUBLICATIONS____________________________________
