@@ -169,13 +169,12 @@ Access          PUBLIC
 Parameters      isbn
 Method          DELETE
 */
-shapeAI.delete("/book/delete/:isbn", (req, res) => {
-  const updatedBookDatabase = database.books.filter(
-    (book) => book.ISBN !== req.params.isbn
-  );
+shapeAI.delete("/book/delete/:isbn", async (req, res) => {
+  const deletedBook = await BookModel.findOneAndDelete({
+    ISBN: req.params.isbn,
+  });
 
-  database.books = updatedBookDatabase;
-  return res.json({ books: database.books });
+  return res.json({ message: deletedBook });
 });
 
 /*
@@ -187,6 +186,7 @@ Method          DELETE
 */
 shapeAI.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
   // update the book database
+
   database.books.forEach((book) => {
     if (book.ISBN === req.params.isbn) {
       const newAuthorList = book.authors.filter(
