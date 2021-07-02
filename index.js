@@ -185,7 +185,7 @@ Parameters      isbn, author id
 Method          DELETE
 */
 shapeAI.delete("/book/delete/author/:isbn/:authorId", async (req, res) => {
-  const deletedBook = await BookModel.findOneAndUpdate(
+  const updatedBook = await BookModel.findOneAndUpdate(
     {
       ISBN: req.params.isbn,
     },
@@ -193,10 +193,13 @@ shapeAI.delete("/book/delete/author/:isbn/:authorId", async (req, res) => {
       $pull: {
         authors: req.params.authorId,
       },
+    },
+    {
+      new: true,
     }
   );
 
-  const deletedAuthor = await AuthorModel.findOneAndUpdate(
+  const updatedAuthor = await AuthorModel.findOneAndUpdate(
     {
       id: req.params.authorId,
     },
@@ -204,10 +207,17 @@ shapeAI.delete("/book/delete/author/:isbn/:authorId", async (req, res) => {
       $pull: {
         books: req.params.isbn,
       },
+    },
+    {
+      new: true,
     }
   );
 
-  return res.json({ dBook: deletedBook, dAuthor: deletedAuthor });
+  return res.json({
+    message: "Success",
+    newBook: updatedBook,
+    newAuthor: updatedAuthor,
+  });
 });
 
 // _____________________PUBLICATIONS____________________________________
